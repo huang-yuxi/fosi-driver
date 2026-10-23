@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fosi Audio DAC Studio Monitor & Controller</title>
+    <meta name="description" content="Audiophile hardware telemetry monitor and real-time sampling rate controller for Fosi Audio DACs and studio monitors.">
+    <!-- Google Fonts for modern typography and digital display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-background"></div>
+    <div class="app-glow-accent"></div>
+
+    <main class="main-container">
+        <!-- Top App Navigation & Hardware Info -->
+        <header class="header-bar">
+            <div class="brand-area">
+                <div class="brand-icon">
+                    <span class="icon-pulse"></span>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">
+                        <span class="brand-name">FOSI AUDIO</span>
+                        <span class="brand-model" id="dac-model-tag">DS3 HI-FI DAC</span>
+                    </div>
+                    <span class="brand-subtitle">STUDIO MONITOR & HARDWARE CONTROLLER</span>
+                </div>
+            </div>
+
+            <div class="header-badges">
+                <div class="status-pill connected" id="connection-pill">
+                    <span class="pill-dot"></span>
+                    <span id="connection-label">DAC CONNECTED</span>
+                </div>
+                <div class="status-pill engine-pill" title="Windows Audio Session API (WASAPI)">
+                    <span class="engine-tag">WASAPI UAC2</span>
+                </div>
+                <button class="icon-btn" id="refresh-btn" title="Refresh Telemetry">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Column: OLED Display & Telemetry -->
+            <section class="dash-panel oled-chassis" aria-label="DAC Telemetry Display">
+                <div class="panel-header">
+                    <span class="panel-title">LIVE DAC TELEMETRY</span>
+                    <span class="oled-status-tag" id="streaming-badge">STREAMING ACTIVE</span>
+                </div>
+
+                <!-- Digital OLED Screen -->
+                <div class="oled-screen">
+                    <div class="oled-screen-reflection"></div>
+                    
+                    <div class="oled-top-row">
+                        <div class="tier-badge" id="tier-badge">STANDARD HI-FI</div>
+                        <div class="oled-stream-indicator" id="stream-indicator">
+                            <span class="pulse-indicator"></span>
+                            <span id="stream-status-text">PCM STREAMING</span>
+                        </div>
+                    </div>
+
+                    <!-- Giant Rate Readout -->
+                    <div class="oled-main-metric">
+                        <div class="rate-number" id="sample-rate-val">48.0</div>
+                        <div class="rate-unit-group">
+                            <span class="rate-unit">kHz</span>
+                            <span class="rate-channel-badge">2.0 STEREO</span>
+                        </div>
+                    </div>
+
+                    <!-- OLED Sub Metrics -->
+                    <div class="oled-subgrid">
+                        <div class="oled-subitem">
+                            <span class="subitem-label">BIT DEPTH</span>
+                            <span class="subitem-value" id="bit-depth-val">32-Bit</span>
+                        </div>
+                        <div class="oled-subitem">
+                            <span class="subitem-label">STREAM BITRATE</span>
+                            <span class="subitem-value" id="bitrate-val">3,072 kbps</span>
+                        </div>
+                        <div class="oled-subitem">
+                            <span class="subitem-label">ACTIVE SOURCE</span>
+                            <span class="subitem-value highlight" id="active-source-val">chrome.exe</span>
+                        </div>
+                        <div class="oled-subitem">
+                            <span class="subitem-label">OUTPUT TARGET</span>
+                            <span class="subitem-value" id="output-target-val">Monitors</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Stereo VU Peak Meter -->
+                <div class="meter-card">
+                    <div class="meter-header">
+                        <span class="meter-title">STEREO MONITOR OUTPUT PEAK (dB)</span>
+                        <span class="meter-reading" id="peak-reading">-17.4 dB</span>
+                    </div>
+
+                    <!-- Left Channel -->
+                    <div class="meter-channel">
+                        <span class="channel-label">L</span>
+                        <div class="meter-track" id="meter-track-l">
+                            <div class="meter-fill" id="meter-fill-l" style="width: 0%;"></div>
+                            <div class="meter-peak-tick" id="meter-peak-l" style="left: 0%;"></div>
+                            <div class="meter-graduations">
+                                <span>-60</span>
+                                <span>-40</span>
+                                <span>-24</span>
+                                <span>-12</span>
+                                <span>-6</span>
+                                <span>-3</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Channel -->
+                    <div class="meter-channel">
+                        <span class="channel-label">R</span>
+                        <div class="meter-track" id="meter-track-r">
+                            <div class="meter-fill" id="meter-fill-r" style="width: 0%;"></div>
+                            <div class="meter-peak-tick" id="meter-peak-r" style="left: 0%;"></div>
+                            <div class="meter-graduations">
+                                <span>-60</span>
+                                <span>-40</span>
+                                <span>-24</span>
+                                <span>-12</span>
+                                <span>-6</span>
+                                <span>-3</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitor Speaker Channel Test -->
+                    <div class="speaker-test-row">
+                        <span class="test-label">MONITOR TEST:</span>
+                        <div class="test-buttons">
+                            <button class="test-btn" id="test-left-btn" title="Send 440 Hz chime to Left monitor">
+                                <span class="dot-l"></span> Test Left
+                            </button>
+                            <button class="test-btn" id="test-both-btn" title="Send stereo chime to both monitors">
+                                Stereo Center
+                            </button>
+                            <button class="test-btn" id="test-right-btn" title="Send 880 Hz chime to Right monitor">
+                                Test Right <span class="dot-r"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Controls & Settings -->
+            <section class="dash-panel controls-chassis" aria-label="DAC Hardware Controls">
+                
+                <!-- Master Volume & Mute Section -->
+                <div class="control-card volume-card">
+                    <div class="card-header">
+                        <span class="card-title">MONITOR VOLUME & GAIN</span>
+                        <span class="volume-val-badge" id="volume-val">40%</span>
+                    </div>
+
+                    <div class="volume-row">
+                        <button class="mute-btn" id="mute-btn" title="Toggle Mute">
+                            <svg id="mute-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            </svg>
+                        </button>
+                        <div class="slider-wrapper">
+                            <input type="range" min="0" max="100" value="40" class="slider" id="volume-slider" aria-label="Master Volume">
+                            <div class="slider-ticks">
+                                <span>0%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hardware Sampling Rate Selector -->
+                <div class="control-card rate-selector-card">
+                    <div class="card-header">
+                        <div>
+                            <span class="card-title">HARDWARE SAMPLING RATE</span>
+                            <span class="card-subtitle">Instant on-the-fly DAC clock switching</span>
+                        </div>
+                        <span class="switching-indicator" id="switching-msg">SWITCHING...</span>
+                    </div>
+
+                    <!-- Rates Grid -->
+                    <div class="rate-buttons-grid" id="rates-grid">
+                        <!-- Standard Rates -->
+                        <button class="rate-btn" data-rate="44100" id="rate-44100">
+                            <span class="btn-rate">44.1 kHz</span>
+                            <span class="btn-desc">16/24/32b · CD</span>
+                        </button>
+                        <button class="rate-btn active" data-rate="48000" id="rate-48000">
+                            <span class="btn-rate">48.0 kHz</span>
+                            <span class="btn-desc">Standard Studio</span>
+                        </button>
+                        <button class="rate-btn" data-rate="88200" id="rate-88200">
+                            <span class="btn-rate">88.2 kHz</span>
+                            <span class="btn-desc">2x CD Master</span>
+                        </button>
+                        <button class="rate-btn" data-rate="96000" id="rate-96000">
+                            <span class="btn-rate">96.0 kHz</span>
+                            <span class="btn-desc">Hi-Res Audio</span>
+                        </button>
+                        <button class="rate-btn" data-rate="176400" id="rate-176400">
+                            <span class="btn-rate">176.4 kHz</span>
+                            <span class="btn-desc">4x CD Master</span>
+                        </button>
+                        <button class="rate-btn" data-rate="192000" id="rate-192000">
+                            <span class="btn-rate">192.0 kHz</span>
+                            <span class="btn-desc">Studio Master</span>
+                        </button>
+                        <button class="rate-btn" data-rate="352800" id="rate-352800">
+                            <span class="btn-rate">352.8 kHz</span>
+                            <span class="btn-desc">DXD Master</span>
+                        </button>
+                        <button class="rate-btn" data-rate="384000" id="rate-384000">
+                            <span class="btn-rate">384.0 kHz</span>
+                            <span class="btn-desc">Ultra Hi-Res</span>
+                        </button>
+                        <button class="rate-btn" data-rate="705600" id="rate-705600">
+                            <span class="btn-rate">705.6 kHz</span>
+                            <span class="btn-desc">16x CD Master</span>
+                        </button>
+                        <button class="rate-btn" data-rate="768000" id="rate-768000">
+                            <span class="btn-rate">768.0 kHz</span>
+                            <span class="btn-desc">Max Hardware Limit</span>
+                        </button>
+                    </div>
+
+                    <!-- Bit Depth Selector -->
+                    <div class="bit-selector-row">
+                        <span class="bit-label">BIT DEPTH:</span>
+                        <div class="bit-toggle-group">
+                            <button class="bit-btn" data-bit="16" id="bit-16">16-Bit</button>
+                            <button class="bit-btn" data-bit="24" id="bit-24">24-Bit</button>
+                            <button class="bit-btn active" data-bit="32" id="bit-32">32-Bit Float</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Audio Applications -->
+                <div class="control-card sessions-card">
+                    <div class="card-header">
+                        <span class="card-title">ACTIVE STREAMING APPS</span>
+                        <span class="session-count" id="session-count">1 Active</span>
+                    </div>
+                    <div class="sessions-list" id="sessions-list">
+                        <div class="session-item active">
+                            <div class="session-app-info">
+                                <span class="app-icon">▶</span>
+                                <span class="app-name">chrome.exe</span>
+                            </div>
+                            <span class="session-status streaming">STREAMING</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- Notification Toast -->
+        <div class="toast" id="toast" role="status" aria-live="polite">
+            <span class="toast-icon">✓</span>
+            <span class="toast-text" id="toast-text">Format updated to 96.0 kHz / 32-bit</span>
+        </div>
+
+        <!-- Footer Device Specifications -->
+        <footer class="app-footer">
+            <div class="footer-item">
+                <span class="footer-label">DEVICE:</span>
+                <span class="footer-val" id="device-footer-name">Fosi Audio DS3</span>
+            </div>
+            <div class="footer-item">
+                <span class="footer-label">CHIPSET ARCHITECTURE:</span>
+                <span class="footer-val">XMOS USB Audio Class 2.0 (Thesycon)</span>
+            </div>
+            <div class="footer-item">
+                <span class="footer-label">MONITOR INTERFACE:</span>
+                <span class="footer-val">Active Studio Monitors (L/R)</span>
+            </div>
+        </footer>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
