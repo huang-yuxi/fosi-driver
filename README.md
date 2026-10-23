@@ -1,6 +1,19 @@
 # Fosi Audio DAC Studio Monitor & Controller
 
-A dedicated, audiophile-grade real-time hardware telemetry monitor and settings controller built for your **Fosi Audio DAC** and monitor speakers on Windows.
+[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Release](https://img.shields.io/github/v/release/huang-yuxi/fosi-driver?color=00e676)](https://github.com/huang-yuxi/fosi-driver/releases)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-00d2ff.svg)](https://microsoft.com/windows)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-ffd600.svg)](https://python.org)
+
+An open-source, audiophile-grade real-time hardware telemetry monitor, sampling rate controller, and Windows System Tray utility built for **Fosi Audio DACs** (DS3, DS2, K5 Pro, SK01/02, ZH350, etc.) and active studio monitors.
+
+---
+
+## Download Standalone App
+
+You do not need Python installed to use the monitor. Download the pre-built Windows executable directly from the Releases page:
+
+**[Download Latest Windows Release (v1.0.0)](https://github.com/huang-yuxi/fosi-driver/releases/latest)**
 
 ---
 
@@ -19,7 +32,13 @@ A dedicated, audiophile-grade real-time hardware telemetry monitor and settings 
 * **Dual Channel Stereo VU Peak Meter**: Real-time calibrated Left (L) & Right (R) channel meters with peak-hold tick indicators and decibel (`dB`) readouts.
 * **Active Stream Application Inspector**: Automatically identifies which application is routing sound to the DAC (e.g., `chrome.exe`, `spotify.exe`, `tidal.exe`, `foobar2000.exe`).
 
-### 2. Live Settings Control
+### 2. Windows System Tray Integration
+* **Live Status Tooltip**: Hovering over the tray icon near the clock displays real-time telemetry (active DAC, sample rate, bit depth, stream status, and volume).
+* **Click to Open**: Single click or double click brings up the full Studio Dashboard window.
+* **Silent Background Operation**: Closing the dashboard window minimizes the app to the system tray so it remains available without cluttering your taskbar.
+* **Right-Click Context Menu**: Instant sample rate switching, volume adjustments, and mute toggle directly from the tray.
+
+### 3. Live Hardware Settings Control
 * **On-the-Fly Sampling Rate Switcher**: One-click instant switching between all supported DAC sample rates:
   * `44.1 kHz`, `48.0 kHz`, `88.2 kHz`, `96.0 kHz`, `176.4 kHz`, `192.0 kHz`, `352.8 kHz`, `384.0 kHz`, `705.6 kHz`, `768.0 kHz`.
 * **Bit Depth Switcher**: Switch between `16-Bit`, `24-Bit`, and `32-Bit Float`.
@@ -31,31 +50,45 @@ A dedicated, audiophile-grade real-time hardware telemetry monitor and settings 
 
 ---
 
-## How to Run
+## Running from Source
 
-### Method 1: One-Click Desktop App (Recommended)
-Double-click [`run_monitor.bat`](file:///j:/fosi/run_monitor.bat).
-This automatically starts the local backend and opens a clean, borderless desktop window.
+If you prefer to run from source code:
 
-### Method 2: Command Line
-Open PowerShell or Command Prompt in `j:\fosi`:
-```powershell
-python app_launcher.py
-```
-Or to run just the web server and view it in your favorite browser:
-```powershell
-python server.py
-```
-Then navigate to: **[http://127.0.0.1:5055](http://127.0.0.1:5055)**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/huang-yuxi/fosi-driver.git
+   cd fosi-driver
+   ```
+2. Install dependencies:
+   ```bash
+   pip install flask pycaw comtypes pystray Pillow psutil
+   ```
+3. Run the desktop application:
+   ```bash
+   python app_launcher.py
+   ```
+   Or double-click `run_monitor.bat`.
 
 ---
 
-## File Structure
+## Architecture
 
-* [`dac_core.py`](file:///j:/fosi/dac_core.py): Windows Core Audio (WASAPI), `IMMDevice`, `IAudioMeterInformation`, `IAudioEndpointVolume`, and undocumented `IPolicyConfig` COM driver interface.
-* [`server.py`](file:///j:/fosi/server.py): Flask REST API & Web Server.
-* [`app_launcher.py`](file:///j:/fosi/app_launcher.py): Launches the local server and opens a dedicated app window.
-* [`templates/index.html`](file:///j:/fosi/templates/index.html): Audiophile OLED display dashboard.
-* [`static/style.css`](file:///j:/fosi/static/style.css): Custom dark brushed gunmetal / Fosi amber theme.
-* [`static/app.js`](file:///j:/fosi/static/app.js): High-speed client-side telemetry engine.
-* [`run_monitor.bat`](file:///j:/fosi/run_monitor.bat): Windows batch launcher.
+* `dac_core.py`: Low-level Windows Core Audio interface (WASAPI, `IMMDevice`, `IAudioMeterInformation`, `IAudioEndpointVolume`, and `IPolicyConfig`).
+* `server.py`: Local Flask REST API server and test chime generator.
+* `app_launcher.py`: System Tray manager (`pystray`) and desktop window controller.
+* `templates/index.html`: Audiophile OLED display dashboard.
+* `static/style.css`: Custom dark brushed gunmetal / Fosi amber styling.
+* `static/app.js`: High-speed client telemetry engine.
+* `Fosi_DAC_Monitor.spec`: PyInstaller standalone executable build specification.
+
+---
+
+## Contributing
+
+Contributions, bug reports, and feature suggestions are welcome! Feel free to open an issue or submit a Pull Request.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
